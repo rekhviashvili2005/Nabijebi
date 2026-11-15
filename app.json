@@ -11,6 +11,10 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.nabijebi.app",
+      "permissions": [
+        "android.permission.health.READ_STEPS"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -32,11 +36,31 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      "react-native-health-connect",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "2bf87a49-1225-47ca-a6dc-4b7bcf05557a"
+      }
+    },
+    "owner": "modricdrs-team"
   }
 }
