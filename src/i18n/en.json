@@ -1,0 +1,103 @@
+{
+  "tabs": {
+    "rooms": "Rooms",
+    "profile": "Profile"
+  },
+  "home": {
+    "greeting": "Hello, {{name}}"
+  },
+  "language": {
+    "title": "Language"
+  },
+  "steps": {
+    "title": "Today's steps",
+    "readButton": "Read steps",
+    "loading": "Loading...",
+    "noAccess": "No access to Health Connect (not installed or permission denied)",
+    "error": "Error: {{message}}"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "displayName": "Display name",
+    "password": "Password",
+    "signInButton": "Sign in",
+    "registerButton": "Create account",
+    "switchToRegister": "No account yet? Create one",
+    "switchToSignIn": "Already have an account? Sign in",
+    "signOut": "Sign out",
+    "errors": {
+      "invalidEmail": "Enter a valid email address",
+      "displayNameLength": "Display name must be 2 to 50 characters",
+      "passwordLength": "Password must be at least 8 characters",
+      "passwordRequired": "Enter your password",
+      "network": "Could not reach the server",
+      "invalidCredentials": "Wrong email or password",
+      "emailTaken": "This email is already registered",
+      "generic": "Something went wrong. Please try again"
+    }
+  },
+  "rooms": {
+    "title": "My rooms",
+    "empty": "You are not in any room yet. Create one or join with an invite code.",
+    "createTitle": "Create a room",
+    "roomName": "Room name",
+    "createButton": "Create",
+    "joinTitle": "Join with a code",
+    "inviteCodePlaceholder": "Invite code",
+    "joinButton": "Join",
+    "members": "Members: {{count}}",
+    "inviteCode": "Invite code: {{code}}",
+    "shareButton": "Share code",
+    "shareMessage": "Join my room \"{{name}}\" in Nabijebi! Invite code: {{code}}",
+    "codeNotFound": "No room found with this code",
+    "publicTitle": "Public room",
+    "publicDescription": "Open to everyone. Compete with all players.",
+    "publicJoinButton": "Join the public room",
+    "publicOpen": "Open ›",
+    "errors": {
+      "nameLength": "Room name must be at least 2 characters",
+      "codeLength": "Enter the invite code"
+    }
+  },
+  "challenges": {
+    "title": "Challenges",
+    "empty": "There are no challenges in this room yet.",
+    "period": "{{start}} – {{end}}",
+    "participants": "Participants: {{count}}",
+    "joined": "You have joined",
+    "notJoined": "Not joined yet",
+    "joinButton": "Join challenge",
+    "createTitle": "Create a challenge",
+    "namePlaceholder": "Challenge name",
+    "startDate": "Start date (yyyy-MM-dd)",
+    "endDate": "End date (yyyy-MM-dd)",
+    "createButton": "Create challenge",
+    "errors": {
+      "nameLength": "Challenge name must be at least 2 characters",
+      "dateFormat": "Enter dates as yyyy-MM-dd, for example 2026-12-01",
+      "endBeforeStart": "The end date cannot be before the start date",
+      "tooLong": "A challenge can last at most 365 days"
+    }
+  },
+  "leaderboard": {
+    "open": "View leaderboard ›",
+    "title": "Leaderboard",
+    "empty": "Nobody has joined this challenge yet.",
+    "steps": "{{count}} steps",
+    "you": "You",
+    "ended": "Challenge ended",
+    "active": "Challenge in progress",
+    "winner": "🏆 Winner: {{names}}",
+    "winners": "🏆 Winners: {{names}}",
+    "noWinner": "No winner: nobody has recorded any steps."
+  },
+  "errors": {
+    "network": "Could not reach the server",
+    "invalidInput": "Please check the entered data",
+    "forbidden": "You do not have permission for this action",
+    "notFound": "Not found",
+    "generic": "Something went wrong. Please try again"
+  }
+}
