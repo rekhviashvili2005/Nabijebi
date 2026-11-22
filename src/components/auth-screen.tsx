@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ScrollView, StyleSheet, TextInput, useColorScheme } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppButton } from '@/components/app-button';
+import { AppInput } from '@/components/app-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { ApiError } from '@/services/api-client';
 import { useAuth } from '@/services/auth-context';
 
@@ -16,8 +18,6 @@ const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
 export default function AuthScreen() {
   const { t } = useTranslation();
   const { signIn, signUp } = useAuth();
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
 
   const [mode, setMode] = useState<Mode>('signIn');
   const [email, setEmail] = useState('');
@@ -27,11 +27,6 @@ export default function AuthScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isRegister = mode === 'register';
-
-  const inputStyle = [
-    styles.input,
-    { color: colors.text, backgroundColor: colors.backgroundElement },
-  ];
 
   const validate = (): string => {
     if (!EMAIL_PATTERN.test(email.trim())) {
@@ -64,6 +59,9 @@ export default function AuthScreen() {
       }
       if (cause.status === 409) {
         return t('auth.errors.emailTaken');
+      }
+      if (cause.status === 429) {
+        return t('errors.tooManyRequests');
       }
     }
 
@@ -106,16 +104,15 @@ export default function AuthScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ThemedText style={styles.logo}>👟</ThemedText>
           <ThemedText type="title" style={styles.title}>
             {isRegister ? t('auth.registerTitle') : t('auth.signInTitle')}
           </ThemedText>
 
-          <TextInput
-            style={inputStyle}
+          <AppInput
             value={email}
             onChangeText={setEmail}
             placeholder={t('auth.email')}
-            placeholderTextColor="#888888"
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
@@ -125,23 +122,19 @@ export default function AuthScreen() {
           />
 
           {isRegister && (
-            <TextInput
-              style={inputStyle}
+            <AppInput
               value={displayName}
               onChangeText={setDisplayName}
               placeholder={t('auth.displayName')}
-              placeholderTextColor="#888888"
               maxLength={50}
               editable={!isSubmitting}
             />
           )}
 
-          <TextInput
-            style={inputStyle}
+          <AppInput
             value={password}
             onChangeText={setPassword}
             placeholder={t('auth.password')}
-            placeholderTextColor="#888888"
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
@@ -151,13 +144,14 @@ export default function AuthScreen() {
 
           {error !== '' && <ThemedText type="small">{error}</ThemedText>}
 
-          <Button
+          <AppButton
             title={isRegister ? t('auth.registerButton') : t('auth.signInButton')}
             onPress={submit}
             disabled={isSubmitting}
           />
 
-          <Button
+          <AppButton
+            variant="secondary"
             title={isRegister ? t('auth.switchToSignIn') : t('auth.switchToRegister')}
             onPress={switchMode}
             disabled={isSubmitting}
@@ -181,13 +175,12 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     paddingHorizontal: Spacing.four,
   },
-  title: {
+  logo: {
+    fontSize: 56,
+    lineHeight: 68,
     textAlign: 'center',
   },
-  input: {
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
+  title: {
+    textAlign: 'center',
   },
 });

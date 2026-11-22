@@ -1,21 +1,15 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  TextInput,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppButton } from '@/components/app-button';
+import { AppCard } from '@/components/app-card';
+import { AppInput } from '@/components/app-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/services/auth-context';
 import {
   Challenge,
@@ -29,6 +23,8 @@ import { stepsProvider } from '@/services/steps';
 
 const MAX_CHALLENGE_DAYS = 365;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+// Must match the invite code of the public room in the database (seed-public-room.sql)
+const PUBLIC_ROOM_CODE = 'PUBLIC00';
 
 // Parses "yyyy-MM-dd" as a local date; returns null if the text is not a real date
 function parseLocalDate(value: string): Date | null {
@@ -56,8 +52,6 @@ function defaultEndDate(): string {
 export default function RoomDetailsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const { session } = useAuth();
   const { id, name, inviteCode, memberCount, ownerId } = useLocalSearchParams<{
     id: string;
@@ -70,6 +64,9 @@ export default function RoomDetailsScreen() {
   const isOwner =
     !!ownerId && session?.userId.toLowerCase() === ownerId.toLowerCase();
 
+  // The public room is joined with a button, so its code is not shown
+  const isPublicRoom = inviteCode === PUBLIC_ROOM_CODE;
+
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -81,11 +78,6 @@ export default function RoomDetailsScreen() {
   const [isBusy, setIsBusy] = useState(false);
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [joinError, setJoinError] = useState('');
-
-  const inputStyle = [
-    styles.input,
-    { color: colors.text, backgroundColor: colors.backgroundElement },
-  ];
 
   const load = useCallback(async () => {
     try {
@@ -224,23 +216,22 @@ export default function RoomDetailsScreen() {
     <View style={styles.header}>
       <ThemedText type="title">{name}</ThemedText>
       <ThemedText type="small">{t('rooms.members', { count: Number(memberCount) })}</ThemedText>
-      <ThemedText type="small">{t('rooms.inviteCode', { code: inviteCode })}</ThemedText>
+      {!isPublicRoom && (
+        <ThemedText type="small">{t('rooms.inviteCode', { code: inviteCode })}</ThemedText>
+      )}
 
       {isOwner && (
-        <View style={styles.form}>
+        <AppCard style={styles.form}>
           <ThemedText style={styles.sectionTitle}>{t('challenges.createTitle')}</ThemedText>
-          <TextInput
-            style={inputStyle}
+          <AppInput
             value={challengeName}
             onChangeText={setChallengeName}
             placeholder={t('challenges.namePlaceholder')}
-            placeholderTextColor="#888888"
             maxLength={100}
             editable={!isBusy}
           />
           <ThemedText type="small">{t('challenges.startDate')}</ThemedText>
-          <TextInput
-            style={inputStyle}
+          <AppInput
             value={startDate}
             onChangeText={setStartDate}
             keyboardType="numbers-and-punctuation"
@@ -249,8 +240,7 @@ export default function RoomDetailsScreen() {
             editable={!isBusy}
           />
           <ThemedText type="small">{t('challenges.endDate')}</ThemedText>
-          <TextInput
-            style={inputStyle}
+          <AppInput
             value={endDate}
             onChangeText={setEndDate}
             keyboardType="numbers-and-punctuation"
@@ -258,9 +248,13 @@ export default function RoomDetailsScreen() {
             maxLength={10}
             editable={!isBusy}
           />
-          <Button title={t('challenges.createButton')} onPress={handleCreate} disabled={isBusy} />
+          <AppButton
+            title={t('challenges.createButton')}
+            onPress={handleCreate}
+            disabled={isBusy}
+          />
           {formError !== '' && <ThemedText type="small">{formError}</ThemedText>}
-        </View>
+        </AppCard>
       )}
 
       <ThemedText style={styles.sectionTitle}>{t('challenges.title')}</ThemedText>
@@ -306,13 +300,14 @@ export default function RoomDetailsScreen() {
             const isEnded = today > item.endDate;
 
             return (
-              <ThemedView type="backgroundElement" style={styles.card}>
+              <AppCard>
                 <Pressable onPress={() => openLeaderboard(item)} style={styles.cardBody}>
                   <ThemedText style={styles.challengeName}>{item.name}</ThemedText>
                   <ThemedText type="small">
                     {t('challenges.period', { start: item.startDate, end: item.endDate })}
                   </ThemedText>
-                  <ThemedText type="small">
+                  <ThemedText type="smallBold">
+                    {isEnded ? '🏁 ' : '🟢 '}
                     {isEnded ? t('leaderboard.ended') : t('leaderboard.active')}
                   </ThemedText>
                   <ThemedText type="small">
@@ -321,16 +316,21 @@ export default function RoomDetailsScreen() {
                   <ThemedText type="small">
                     {item.isJoined ? t('challenges.joined') : t('challenges.notJoined')}
                   </ThemedText>
+                  {item.isJoined && (
+                    <ThemedText type="small">
+                      {t('challenges.mySteps', { count: item.myTotalSteps })}
+                    </ThemedText>
+                  )}
                   <ThemedText type="small">{t('leaderboard.open')}</ThemedText>
                 </Pressable>
                 {!item.isJoined && !isEnded && (
-                  <Button
+                  <AppButton
                     title={t('challenges.joinButton')}
                     onPress={() => handleJoin(item)}
                     disabled={joiningId !== null}
                   />
                 )}
-              </ThemedView>
+              </AppCard>
             );
           }}
         />
@@ -356,24 +356,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.four,
   },
   form: {
-    gap: Spacing.two,
     marginTop: Spacing.three,
-  },
-  input: {
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
     marginTop: Spacing.three,
-  },
-  card: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: 16,
   },
   cardBody: {
     gap: Spacing.two,

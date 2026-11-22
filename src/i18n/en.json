@@ -68,6 +68,7 @@
     "participants": "Participants: {{count}}",
     "joined": "You have joined",
     "notJoined": "Not joined yet",
+    "mySteps": "Your steps: {{count}}",
     "joinButton": "Join challenge",
     "createTitle": "Create a challenge",
     "namePlaceholder": "Challenge name",
@@ -89,6 +90,7 @@
     "you": "You",
     "ended": "Challenge ended",
     "active": "Challenge in progress",
+    "yourPlace": "Your place: {{rank}} of {{total}}",
     "winner": "🏆 Winner: {{names}}",
     "winners": "🏆 Winners: {{names}}",
     "noWinner": "No winner: nobody has recorded any steps."
@@ -98,6 +100,7 @@
     "invalidInput": "Please check the entered data",
     "forbidden": "You do not have permission for this action",
     "notFound": "Not found",
+    "tooManyRequests": "Too many attempts. Please try again in a minute",
     "generic": "Something went wrong. Please try again"
   }
 }

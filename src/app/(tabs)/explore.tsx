@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppButton } from '@/components/app-button';
+import { AppCard } from '@/components/app-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -58,26 +60,34 @@ export default function ProfileScreen() {
         <ThemedText type="small">
           {t('home.greeting', { name: session?.displayName ?? '' })}
         </ThemedText>
-        <ThemedText type="title">{t('steps.title')}</ThemedText>
-        <ThemedText type="title">{steps === null ? '-' : steps}</ThemedText>
-        {message !== '' && <ThemedText type="small">{message}</ThemedText>}
-        <Button title={t('steps.readButton')} onPress={loadSteps} />
 
-        <ThemedText type="small">{t('language.title')}</ThemedText>
-        <View style={styles.languageRow}>
-          <Button
-            title="ქართული"
-            onPress={() => changeLanguage('ka')}
-            disabled={i18n.language === 'ka'}
-          />
-          <Button
-            title="English"
-            onPress={() => changeLanguage('en')}
-            disabled={i18n.language === 'en'}
-          />
-        </View>
+        <AppCard style={styles.card}>
+          <ThemedText type="small">{t('steps.title')}</ThemedText>
+          <ThemedText type="title">👟 {steps === null ? '-' : steps}</ThemedText>
+          {message !== '' && <ThemedText type="small">{message}</ThemedText>}
+          <AppButton title={t('steps.readButton')} onPress={loadSteps} />
+        </AppCard>
 
-        <Button
+        <AppCard style={styles.card}>
+          <ThemedText type="small">{t('language.title')}</ThemedText>
+          <View style={styles.languageRow}>
+            <AppButton
+              style={styles.languageButton}
+              variant={i18n.language === 'ka' ? 'primary' : 'secondary'}
+              title="ქართული"
+              onPress={() => changeLanguage('ka')}
+            />
+            <AppButton
+              style={styles.languageButton}
+              variant={i18n.language === 'en' ? 'primary' : 'secondary'}
+              title="English"
+              onPress={() => changeLanguage('en')}
+            />
+          </View>
+        </AppCard>
+
+        <AppButton
+          variant="secondary"
           title={t('auth.signOut')}
           onPress={() => {
             void signOut();
@@ -94,13 +104,18 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.three,
     paddingHorizontal: Spacing.four,
   },
+  card: {
+    gap: Spacing.three,
+  },
   languageRow: {
     flexDirection: 'row',
     gap: Spacing.three,
+  },
+  languageButton: {
+    flex: 1,
   },
 });

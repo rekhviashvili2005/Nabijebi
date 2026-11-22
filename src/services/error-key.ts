@@ -15,6 +15,9 @@ export function getErrorKey(cause: unknown): string {
     if (cause.status === 404) {
       return 'errors.notFound';
     }
+    if (cause.status === 429) {
+      return 'errors.tooManyRequests';
+    }
   }
 
   return 'errors.generic';

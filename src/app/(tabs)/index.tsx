@@ -1,22 +1,15 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  Share,
-  StyleSheet,
-  TextInput,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, RefreshControl, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppButton } from '@/components/app-button';
+import { AppCard } from '@/components/app-card';
+import { AppInput } from '@/components/app-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, Colors, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { ApiError } from '@/services/api-client';
 import { getErrorKey } from '@/services/error-key';
 import {
@@ -31,8 +24,6 @@ import {
 export default function RoomsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
 
   const [rooms, setRooms] = useState<Room[]>([]);
   const [publicRoom, setPublicRoom] = useState<Room | null>(null);
@@ -43,11 +34,6 @@ export default function RoomsScreen() {
   const [inviteCode, setInviteCode] = useState('');
   const [formError, setFormError] = useState('');
   const [isBusy, setIsBusy] = useState(false);
-
-  const inputStyle = [
-    styles.input,
-    { color: colors.text, backgroundColor: colors.backgroundElement },
-  ];
 
   const load = useCallback(async () => {
     try {
@@ -185,7 +171,7 @@ export default function RoomsScreen() {
       <ThemedText type="title">{t('rooms.title')}</ThemedText>
 
       {publicRoom !== null && (
-        <ThemedView type="backgroundSelected" style={styles.card}>
+        <AppCard type="backgroundSelected">
           <Pressable
             onPress={() => openRoom(publicRoom)}
             disabled={!isPublicMember}
@@ -198,40 +184,36 @@ export default function RoomsScreen() {
             {isPublicMember && <ThemedText type="small">{t('rooms.publicOpen')}</ThemedText>}
           </Pressable>
           {!isPublicMember && (
-            <Button
+            <AppButton
               title={t('rooms.publicJoinButton')}
               onPress={handleJoinPublic}
               disabled={isBusy}
             />
           )}
-        </ThemedView>
+        </AppCard>
       )}
 
       <ThemedText>{t('rooms.createTitle')}</ThemedText>
-      <TextInput
-        style={inputStyle}
+      <AppInput
         value={newRoomName}
         onChangeText={setNewRoomName}
         placeholder={t('rooms.roomName')}
-        placeholderTextColor="#888888"
         maxLength={100}
         editable={!isBusy}
       />
-      <Button title={t('rooms.createButton')} onPress={handleCreate} disabled={isBusy} />
+      <AppButton title={t('rooms.createButton')} onPress={handleCreate} disabled={isBusy} />
 
       <ThemedText>{t('rooms.joinTitle')}</ThemedText>
-      <TextInput
-        style={inputStyle}
+      <AppInput
         value={inviteCode}
         onChangeText={setInviteCode}
         placeholder={t('rooms.inviteCodePlaceholder')}
-        placeholderTextColor="#888888"
         autoCapitalize="characters"
         autoCorrect={false}
         maxLength={16}
         editable={!isBusy}
       />
-      <Button title={t('rooms.joinButton')} onPress={handleJoin} disabled={isBusy} />
+      <AppButton title={t('rooms.joinButton')} onPress={handleJoin} disabled={isBusy} />
 
       {formError !== '' && <ThemedText type="small">{formError}</ThemedText>}
       {loadError !== '' && <ThemedText type="small">{loadError}</ThemedText>}
@@ -254,7 +236,7 @@ export default function RoomsScreen() {
             ) : undefined
           }
           renderItem={({ item }) => (
-            <ThemedView type="backgroundElement" style={styles.card}>
+            <AppCard>
               <Pressable onPress={() => openRoom(item)} style={styles.cardBody}>
                 <ThemedText style={styles.roomName}>{item.name}</ThemedText>
                 <ThemedText type="small">
@@ -264,8 +246,12 @@ export default function RoomsScreen() {
                   {t('rooms.inviteCode', { code: item.inviteCode })}
                 </ThemedText>
               </Pressable>
-              <Button title={t('rooms.shareButton')} onPress={() => shareCode(item)} />
-            </ThemedView>
+              <AppButton
+                variant="secondary"
+                title={t('rooms.shareButton')}
+                onPress={() => shareCode(item)}
+              />
+            </AppCard>
           )}
         />
       </SafeAreaView>
@@ -288,17 +274,6 @@ const styles = StyleSheet.create({
   header: {
     gap: Spacing.three,
     paddingTop: Spacing.four,
-  },
-  input: {
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-  },
-  card: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: 16,
   },
   cardBody: {
     gap: Spacing.two,

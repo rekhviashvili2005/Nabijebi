@@ -7,6 +7,7 @@ export type Challenge = {
   endDate: string;
   participantCount: number;
   isJoined: boolean;
+  myTotalSteps: number;
 };
 
 export type StepsSnapshot = {
@@ -29,6 +30,7 @@ export type Leaderboard = {
   startDate: string;
   endDate: string;
   entries: LeaderboardEntry[];
+  totalParticipants: number;
 };
 
 export function getRoomChallenges(roomId: string): Promise<Challenge[]> {
