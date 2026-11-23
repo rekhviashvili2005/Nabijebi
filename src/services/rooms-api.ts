@@ -37,3 +37,13 @@ export async function getPublicRoom(): Promise<Room | null> {
 export function joinPublicRoom(): Promise<Room> {
   return apiRequest<Room>('/api/rooms/public/join', { method: 'POST' });
 }
+
+// A member leaves the room (the owner cannot: the server answers 403)
+export function leaveRoom(roomId: string): Promise<void> {
+  return apiRequest<void>(`/api/rooms/${roomId}/leave`, { method: 'POST' });
+}
+
+// Only the owner can delete a room, and the public room cannot be deleted (the server answers 403)
+export function deleteRoom(roomId: string): Promise<void> {
+  return apiRequest<void>(`/api/rooms/${roomId}`, { method: 'DELETE' });
+}

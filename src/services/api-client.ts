@@ -21,8 +21,10 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   unauthorizedHandler = handler;
 }
 
+type HttpMethod = 'GET' | 'POST' | 'DELETE';
+
 type RequestOptions = {
-  method?: 'GET' | 'POST';
+  method?: HttpMethod;
   body?: unknown;
   // Set to false for requests that must not send the token (login, register)
   authenticated?: boolean;
@@ -46,7 +48,7 @@ async function fetchWithTimeout(url: string, init: RequestInit): Promise<Respons
 
 async function send(
   path: string,
-  method: 'GET' | 'POST',
+  method: HttpMethod,
   body: unknown,
   authenticated: boolean,
 ): Promise<{ response: Response; token: string | null }> {

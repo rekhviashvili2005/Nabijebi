@@ -56,6 +56,13 @@
     "publicDescription": "ღიაა ყველასთვის. შეეჯიბრე ყველა მოთამაშეს.",
     "publicJoinButton": "საჯარო რუმში შესვლა",
     "publicOpen": "გახსნა ›",
+    "leaveButton": "რუმიდან გასვლა",
+    "deleteButton": "რუმის წაშლა",
+    "cancel": "გაუქმება",
+    "leaveConfirmTitle": "რუმიდან გასვლა",
+    "leaveConfirmMessage": "გასვლისას მიმდინარე ჩელენჯებიდანაც გახვალ. გსურს გასვლა?",
+    "deleteConfirmTitle": "რუმის წაშლა",
+    "deleteConfirmMessage": "რუმი, მისი ჩელენჯები და შედეგები სამუდამოდ წაიშლება. გსურს წაშლა?",
     "errors": {
       "nameLength": "რუმის სახელი მინიმუმ 2 სიმბოლო უნდა იყოს",
       "codeLength": "შეიყვანე მოწვევის კოდი"

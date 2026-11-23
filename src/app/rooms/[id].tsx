@@ -1,7 +1,7 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton } from '@/components/app-button';
@@ -20,6 +20,7 @@ import {
 } from '@/services/challenges-api';
 import { toLocalDateString } from '@/services/date-utils';
 import { getErrorKey } from '@/services/error-key';
+import { deleteRoom, leaveRoom } from '@/services/rooms-api';
 import { stepsProvider } from '@/services/steps';
 
 // Must match the invite code of the public room in the database (seed-public-room.sql)
@@ -53,6 +54,8 @@ export default function RoomDetailsScreen() {
   const [isBusy, setIsBusy] = useState(false);
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [joinError, setJoinError] = useState('');
+  const [roomError, setRoomError] = useState('');
+  const [isRoomBusy, setIsRoomBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -171,6 +174,51 @@ export default function RoomDetailsScreen() {
     }
   };
 
+  // Runs leave/delete; on success the screen closes and the rooms list reloads by itself
+  const runRoomAction = async (action: () => Promise<void>) => {
+    if (isRoomBusy) {
+      return;
+    }
+
+    setRoomError('');
+    setIsRoomBusy(true);
+
+    try {
+      await action();
+      router.back();
+    } catch (cause) {
+      setRoomError(t(getErrorKey(cause)));
+    } finally {
+      setIsRoomBusy(false);
+    }
+  };
+
+  const confirmLeave = () => {
+    Alert.alert(t('rooms.leaveConfirmTitle'), t('rooms.leaveConfirmMessage'), [
+      { text: t('rooms.cancel'), style: 'cancel' },
+      {
+        text: t('rooms.leaveButton'),
+        style: 'destructive',
+        onPress: () => {
+          void runRoomAction(() => leaveRoom(id));
+        },
+      },
+    ]);
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(t('rooms.deleteConfirmTitle'), t('rooms.deleteConfirmMessage'), [
+      { text: t('rooms.cancel'), style: 'cancel' },
+      {
+        text: t('rooms.deleteButton'),
+        style: 'destructive',
+        onPress: () => {
+          void runRoomAction(() => deleteRoom(id));
+        },
+      },
+    ]);
+  };
+
   const header = (
     <View style={styles.header}>
       <ThemedText type="title">{name}</ThemedText>
@@ -206,6 +254,29 @@ export default function RoomDetailsScreen() {
     </View>
   );
 
+  // The owner can delete the room (not the public one); everyone else can leave it
+  const footer = (
+    <View style={styles.footer}>
+      {roomError !== '' && <ThemedText type="small">{roomError}</ThemedText>}
+      {!isOwner && (
+        <AppButton
+          variant="secondary"
+          title={t('rooms.leaveButton')}
+          onPress={confirmLeave}
+          disabled={isRoomBusy}
+        />
+      )}
+      {isOwner && !isPublicRoom && (
+        <AppButton
+          variant="secondary"
+          title={t('rooms.deleteButton')}
+          onPress={confirmDelete}
+          disabled={isRoomBusy}
+        />
+      )}
+    </View>
+  );
+
   // "yyyy-MM-dd" strings compare correctly as plain text
   const today = toLocalDateString(new Date());
 
@@ -234,6 +305,7 @@ export default function RoomDetailsScreen() {
           contentContainerStyle={styles.listContent}
           refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
           ListHeaderComponent={header}
+          ListFooterComponent={footer}
           ListEmptyComponent={
             hasLoaded && loadError === '' ? (
               <ThemedText type="small">{t('challenges.empty')}</ThemedText>
@@ -299,6 +371,10 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.four,
   },
   form: {
+    marginTop: Spacing.three,
+  },
+  footer: {
+    gap: Spacing.two,
     marginTop: Spacing.three,
   },
   sectionTitle: {

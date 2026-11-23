@@ -56,6 +56,13 @@
     "publicDescription": "Open to everyone. Compete with all players.",
     "publicJoinButton": "Join the public room",
     "publicOpen": "Open ›",
+    "leaveButton": "Leave room",
+    "deleteButton": "Delete room",
+    "cancel": "Cancel",
+    "leaveConfirmTitle": "Leave room",
+    "leaveConfirmMessage": "You will also leave the challenges that are still running. Do you want to leave?",
+    "deleteConfirmTitle": "Delete room",
+    "deleteConfirmMessage": "The room, its challenges and results will be deleted forever. Do you want to delete it?",
     "errors": {
       "nameLength": "Room name must be at least 2 characters",
       "codeLength": "Enter the invite code"
