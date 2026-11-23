@@ -72,6 +72,8 @@
     "joinButton": "Join challenge",
     "createTitle": "Create a challenge",
     "namePlaceholder": "Challenge name",
+    "duration": "Duration",
+    "days": "{{count}} days",
     "startDate": "Start date (yyyy-MM-dd)",
     "endDate": "End date (yyyy-MM-dd)",
     "createButton": "Create challenge",

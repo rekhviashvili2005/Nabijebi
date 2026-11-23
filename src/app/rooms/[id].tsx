@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '@/components/app-button';
 import { AppCard } from '@/components/app-card';
 import { AppInput } from '@/components/app-input';
+import { challengeDates, DEFAULT_DURATION, DurationPicker } from '@/components/duration-picker';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -21,33 +22,8 @@ import { toLocalDateString } from '@/services/date-utils';
 import { getErrorKey } from '@/services/error-key';
 import { stepsProvider } from '@/services/steps';
 
-const MAX_CHALLENGE_DAYS = 365;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 // Must match the invite code of the public room in the database (seed-public-room.sql)
 const PUBLIC_ROOM_CODE = 'PUBLIC00';
-
-// Parses "yyyy-MM-dd" as a local date; returns null if the text is not a real date
-function parseLocalDate(value: string): Date | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
-  if (!match) {
-    return null;
-  }
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(year, month - 1, day);
-  const isRealDate =
-    date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
-
-  return isRealDate ? date : null;
-}
-
-function defaultEndDate(): string {
-  const date = new Date();
-  date.setDate(date.getDate() + 6);
-  return toLocalDateString(date);
-}
 
 export default function RoomDetailsScreen() {
   const { t } = useTranslation();
@@ -72,8 +48,7 @@ export default function RoomDetailsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [challengeName, setChallengeName] = useState('');
-  const [startDate, setStartDate] = useState(() => toLocalDateString(new Date()));
-  const [endDate, setEndDate] = useState(defaultEndDate);
+  const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
   const [formError, setFormError] = useState('');
   const [isBusy, setIsBusy] = useState(false);
   const [joiningId, setJoiningId] = useState<string | null>(null);
@@ -121,23 +96,6 @@ export default function RoomDetailsScreen() {
       return;
     }
 
-    const start = parseLocalDate(startDate);
-    const end = parseLocalDate(endDate);
-    if (start === null || end === null) {
-      setFormError(t('challenges.errors.dateFormat'));
-      return;
-    }
-
-    const days = Math.round((end.getTime() - start.getTime()) / MS_PER_DAY);
-    if (days < 0) {
-      setFormError(t('challenges.errors.endBeforeStart'));
-      return;
-    }
-    if (days > MAX_CHALLENGE_DAYS) {
-      setFormError(t('challenges.errors.tooLong'));
-      return;
-    }
-
     setFormError('');
     setIsBusy(true);
 
@@ -157,8 +115,9 @@ export default function RoomDetailsScreen() {
       }
 
       try {
-        await createChallenge(id, trimmedName, toLocalDateString(start), toLocalDateString(end), {
-          date: toLocalDateString(new Date()),
+        const { startDate, endDate } = challengeDates(duration);
+        await createChallenge(id, trimmedName, startDate, endDate, {
+          date: startDate,
           steps,
           source: 'HealthConnect',
         });
@@ -230,24 +189,8 @@ export default function RoomDetailsScreen() {
             maxLength={100}
             editable={!isBusy}
           />
-          <ThemedText type="small">{t('challenges.startDate')}</ThemedText>
-          <AppInput
-            value={startDate}
-            onChangeText={setStartDate}
-            keyboardType="numbers-and-punctuation"
-            autoCorrect={false}
-            maxLength={10}
-            editable={!isBusy}
-          />
-          <ThemedText type="small">{t('challenges.endDate')}</ThemedText>
-          <AppInput
-            value={endDate}
-            onChangeText={setEndDate}
-            keyboardType="numbers-and-punctuation"
-            autoCorrect={false}
-            maxLength={10}
-            editable={!isBusy}
-          />
+          <ThemedText type="small">{t('challenges.duration')}</ThemedText>
+          <DurationPicker value={duration} onChange={setDuration} disabled={isBusy} />
           <AppButton
             title={t('challenges.createButton')}
             onPress={handleCreate}

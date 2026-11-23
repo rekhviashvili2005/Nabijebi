@@ -7,10 +7,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '@/components/app-button';
 import { AppCard } from '@/components/app-card';
 import { AppInput } from '@/components/app-input';
+import { challengeDates, DEFAULT_DURATION, DurationPicker } from '@/components/duration-picker';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 import { ApiError } from '@/services/api-client';
+import { createChallenge } from '@/services/challenges-api';
 import { getErrorKey } from '@/services/error-key';
 import {
   createRoom,
@@ -20,6 +22,7 @@ import {
   joinRoom,
   Room,
 } from '@/services/rooms-api';
+import { stepsProvider } from '@/services/steps';
 
 export default function RoomsScreen() {
   const { t } = useTranslation();
@@ -31,6 +34,7 @@ export default function RoomsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [newRoomName, setNewRoomName] = useState('');
+  const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
   const [inviteCode, setInviteCode] = useState('');
   const [formError, setFormError] = useState('');
   const [isBusy, setIsBusy] = useState(false);
@@ -66,6 +70,7 @@ export default function RoomsScreen() {
     setIsRefreshing(false);
   };
 
+  // Creates the room and its first challenge in one step
   const handleCreate = async () => {
     if (isBusy) {
       return;
@@ -81,8 +86,39 @@ export default function RoomsScreen() {
     setIsBusy(true);
 
     try {
-      await createRoom(name);
+      // The first challenge starts counting from today's current steps.
+      // If the steps cannot be read, the room is still created, only without the challenge.
+      let steps: number | null = null;
+      let stepsError = '';
+      try {
+        const hasAccess = await stepsProvider.requestAccess();
+        if (!hasAccess) {
+          stepsError = t('steps.noAccess');
+        } else {
+          steps = await stepsProvider.getStepsForDay(new Date());
+        }
+      } catch (cause) {
+        stepsError = t('steps.error', { message: cause instanceof Error ? cause.message : '' });
+      }
+
+      const room = await createRoom(name);
       setNewRoomName('');
+
+      if (steps === null) {
+        setFormError(stepsError);
+      } else {
+        try {
+          const { startDate, endDate } = challengeDates(duration);
+          await createChallenge(room.id, name, startDate, endDate, {
+            date: startDate,
+            steps,
+            source: 'HealthConnect',
+          });
+        } catch (cause) {
+          setFormError(t(getErrorKey(cause)));
+        }
+      }
+
       await load();
     } catch (cause) {
       setFormError(t(getErrorKey(cause)));
@@ -201,6 +237,8 @@ export default function RoomsScreen() {
         maxLength={100}
         editable={!isBusy}
       />
+      <ThemedText type="small">{t('challenges.duration')}</ThemedText>
+      <DurationPicker value={duration} onChange={setDuration} disabled={isBusy} />
       <AppButton title={t('rooms.createButton')} onPress={handleCreate} disabled={isBusy} />
 
       <ThemedText>{t('rooms.joinTitle')}</ThemedText>

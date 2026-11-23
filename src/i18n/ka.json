@@ -72,6 +72,8 @@
     "joinButton": "ჩელენჯში შეერთება",
     "createTitle": "ჩელენჯის შექმნა",
     "namePlaceholder": "ჩელენჯის სახელი",
+    "duration": "ხანგრძლივობა",
+    "days": "{{count}} დღე",
     "startDate": "დაწყების თარიღი (yyyy-MM-dd)",
     "endDate": "დასრულების თარიღი (yyyy-MM-dd)",
     "createButton": "ჩელენჯის შექმნა",
