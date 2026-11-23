@@ -23,26 +23,25 @@ import { getErrorKey } from '@/services/error-key';
 import { deleteRoom, leaveRoom } from '@/services/rooms-api';
 import { stepsProvider } from '@/services/steps';
 
-// Must match the invite code of the public room in the database (seed-public-room.sql)
-const PUBLIC_ROOM_CODE = 'PUBLIC00';
 
 export default function RoomDetailsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { session } = useAuth();
-  const { id, name, inviteCode, memberCount, ownerId } = useLocalSearchParams<{
+  const { id, name, inviteCode, memberCount, ownerId, isPublic } = useLocalSearchParams<{
     id: string;
     name: string;
     inviteCode: string;
     memberCount: string;
     ownerId: string;
+    isPublic: string;
   }>();
 
   const isOwner =
     !!ownerId && session?.userId.toLowerCase() === ownerId.toLowerCase();
 
   // The public room is joined with a button, so its code is not shown
-  const isPublicRoom = inviteCode === PUBLIC_ROOM_CODE;
+  const isPublicRoom = isPublic === 'true';
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);

@@ -54,16 +54,18 @@ export default function LeaderboardScreen() {
     await load();
   }, [load]);
 
-  // Refresh when the screen comes into view and every 30 seconds while it stays open
+  // Full refresh when the screen comes into view; afterwards only the standings are reloaded
+  // every 30 seconds (one request). My own steps are sent when the screen opens, on pull-to-refresh
+  // and when the app is reopened.
   useFocusEffect(
     useCallback(() => {
       void refresh();
       const timer = setInterval(() => {
-        void refresh();
+        void load();
       }, AUTO_REFRESH_MS);
 
       return () => clearInterval(timer);
-    }, [refresh]),
+    }, [refresh, load]),
   );
 
   const onRefresh = async () => {

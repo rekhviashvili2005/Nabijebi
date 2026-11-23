@@ -40,20 +40,20 @@ export default function RoomsScreen() {
   const [isBusy, setIsBusy] = useState(false);
 
   const load = useCallback(async () => {
-    try {
-      setRooms(await getMyRooms());
-      setLoadError('');
-    } catch (cause) {
-      setLoadError(t(getErrorKey(cause)));
-    } finally {
-      setHasLoaded(true);
-    }
+    // Both requests start at the same time, so the screen waits for the slower one, not for both
+    const [roomsResult, publicResult] = await Promise.allSettled([getMyRooms(), getPublicRoom()]);
 
-    // The public room is optional: if it cannot be loaded, the rest of the screen still works
-    try {
-      setPublicRoom(await getPublicRoom());
-    } catch {
-      // Keep whatever was shown before
+    if (roomsResult.status === 'fulfilled') {
+      setRooms(roomsResult.value);
+      setLoadError('');
+    } else {
+      setLoadError(t(getErrorKey(roomsResult.reason)));
+    }
+    setHasLoaded(true);
+
+    // The public room is optional: if it cannot be loaded, keep whatever was shown before
+    if (publicResult.status === 'fulfilled') {
+      setPublicRoom(publicResult.value);
     }
   }, [t]);
 
@@ -192,6 +192,7 @@ export default function RoomsScreen() {
         inviteCode: room.inviteCode,
         memberCount: String(room.memberCount),
         ownerId: room.ownerId,
+        isPublic: String(room.isPublic),
       },
     });
   };
