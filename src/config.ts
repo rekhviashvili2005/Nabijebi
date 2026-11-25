@@ -1,9 +1,6 @@
-// // Local development API: the computer's Wi-Fi address. Change it if the address changes.
-// // Production must use an https address.
-// export const API_BASE_URL = 'http://192.168.100.6:5205';
+// Production API (Render). It must be an https address.
+export const API_BASE_URL = 'https://nabijebi-backend.onrender.com';
 
 // Local development API: the computer's Wi-Fi address. Change it if the address changes.
-// Production must use an https address.
-// export const API_BASE_URL = 'http://192.168.100.7:5205';
-
-export const API_BASE_URL = 'http://192.168.100.8:5205';
+// To use it, comment out the production line above and uncomment this one.
+// export const API_BASE_URL = 'http://192.168.100.8:5205';

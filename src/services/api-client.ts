@@ -1,7 +1,8 @@
 import { API_BASE_URL } from '@/config';
 import { AuthSession, getSession, saveSession } from '@/services/token-storage';
 
-const REQUEST_TIMEOUT_MS = 15000;
+// The free hosting sleeps when idle, and the first request after that can take about a minute
+const REQUEST_TIMEOUT_MS = 70000;
 
 export class ApiError extends Error {
   // 0 means the server could not be reached at all
